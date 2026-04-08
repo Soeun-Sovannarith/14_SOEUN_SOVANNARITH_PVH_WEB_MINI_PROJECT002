@@ -11,13 +11,13 @@ export const login = async (email, password) => {
     return response.json();
 };
 
-export const register = async (name, email, password, birthdate) => {
+export const register = async (firstName, lastName, email, password, birthdate) => {
     const response = await fetch(`${BASE_URL}/auths/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password, birthdate }),
+        body: JSON.stringify({ firstName, lastName, email, password, birthdate }),
     });
     return response.json();
 };
@@ -39,6 +39,23 @@ export const getProducts = async (accessToken) => {
             ...data,
             payload: [],
         };
+    }
+
+    return data;
+};
+
+export const getProductById = async (id, accessToken) => {
+    const response = await fetch(`${BASE_URL}/products/${id}`, {
+        headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
+        cache: "no-store",
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        return null;
     }
 
     return data;

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@heroui/react";
 import { useSession, signOut } from "next-auth/react";
-// import { useCart } from "@/store/cartStore";
+import { useCart } from "../app/context/CartContext";
 
 const centerLinks = [
   { href: "/", label: "Home" },
@@ -59,10 +59,10 @@ export default function NavbarComponent() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { data: session, status } = useSession();
-//   const { totalQuantity } = useCart();
+  const { totalQuantity } = useCart();
 
-//   const cartLabel =
-//     totalQuantity > 0 ? `Shopping cart, ${totalQuantity} items` : "Shopping cart";
+  const cartLabel =
+    totalQuantity > 0 ? `Shopping cart, ${totalQuantity} items` : "Shopping cart";
 
   const linkClass = (active) =>
     `relative flex items-center rounded-full px-3 py-2 text-sm font-medium transition ${
@@ -123,8 +123,8 @@ export default function NavbarComponent() {
           </div>
           <Link
             href="/cart"
-            // aria-label={cartLabel}
-            // title={cartLabel}
+            aria-label={cartLabel}
+            title={cartLabel}
             className={`relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition ${
               pathname === "/cart"
                 ? "border-lime-500 bg-lime-400 text-gray-900"
@@ -132,14 +132,14 @@ export default function NavbarComponent() {
             }`}
           >
             <CartBagIcon className="size-5" />
-            {/* <span
+            <span
               className={`absolute -right-0.5 -top-0.5 flex min-h-4.5 min-w-4.5 items-center justify-center rounded-full bg-teal-900 px-1 text-[10px] font-semibold leading-none text-lime-300 tabular-nums transition-opacity ${
                 totalQuantity > 0 ? "opacity-100" : "pointer-events-none opacity-0"
               }`}
               aria-hidden
             >
               {totalQuantity > 99 ? "99+" : totalQuantity}
-            </span> */}
+            </span>
           </Link>
 
           <Button
@@ -202,7 +202,7 @@ export default function NavbarComponent() {
               onClick={() => setOpen(false)}
               className="rounded-xl px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100"
             >
-              {/* Cart {totalQuantity > 0 ? `(${totalQuantity})` : ""} */}
+              Cart {totalQuantity > 0 ? `(${totalQuantity})` : ""}
             </Link>
           </div>
         </div>

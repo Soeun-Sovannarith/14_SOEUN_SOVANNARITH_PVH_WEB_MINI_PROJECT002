@@ -20,7 +20,6 @@ export const ToastProvider = ({ children }) => {
     const id = Math.random().toString(36).substr(2, 9);
     setToasts((prev) => [...prev, { id, title, description, color }]);
 
-    // Auto remove after 3 seconds
     setTimeout(() => {
       removeToast(id);
     }, 3000);
@@ -67,15 +66,12 @@ export const ToastProvider = ({ children }) => {
               layout
               className="pointer-events-auto flex flex-col items-center"
             >
-              {/* Dynamic Island Notched Shape */}
               <div className="relative flex flex-col items-center">
-                {/* Top Section (The Island Tip) */}
                 <div className="relative z-20 flex h-10 items-center gap-2 rounded-full bg-black px-6 shadow-2xl transition-all duration-300">
                   {getIcon(toast.color)}
                   <span className="text-sm font-semibold text-white">{toast.title}</span>
                 </div>
 
-                {/* Bottom Section (The Expansion) */}
                 {toast.description && (
                   <div className="relative -mt-4 z-10 w-full min-w-[320px] rounded-[32px] bg-black p-6 pt-8 pb-5 shadow-2xl">
                     <p className="text-left text-sm font-medium leading-relaxed text-gray-400">

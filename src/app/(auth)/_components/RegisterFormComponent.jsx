@@ -27,8 +27,25 @@ export default function RegisterFormComponent() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await register(data.name, data.email, data.password, data.birthdate);
-      console.log(response)
+      const [firstName, ...rest] = data.name.trim().split(" ");
+      const lastName = rest.join(" ") || firstName; // fallback if only one word given
+
+      const response = await register(
+        firstName,
+        lastName,
+        data.email,
+        data.password,
+        data.birthdate
+      );
+
+      if (response.status >= 400) {
+        const reason =
+          response.status === 409
+            ? "This email is already registered. Please log in instead."
+            : response.detail || response.title || "Registration failed.";
+        throw new Error(reason);
+      }
+
       addToast({
         title: "Register Success",
         description: "Your account has been created successfully.",
@@ -38,7 +55,7 @@ export default function RegisterFormComponent() {
     } catch (error) {
       addToast({
         title: "Register Failed",
-        description: "Failed to create account. Please try again.",
+        description: error.message || "Failed to create account. Please try again.",
         color: "danger",
       });
     }
@@ -50,7 +67,7 @@ export default function RegisterFormComponent() {
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
-      {/* Name */}
+      {/* Full name */}
       <div>
         <label className="block text-sm font-medium text-gray-700">
           Full name

@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { StarRow } from "../ProductCardComponent";
+import ButtonAddComponent from "../ButtonAddComponent";
 
 const categoryTone = {
   Skincare: "bg-sky-50 text-sky-800",
@@ -25,9 +28,12 @@ export default function ShopCardComponent({ product }) {
     imageUrl,
     categoryName,
     category,
+    colors,
+    sizes,
   } = product;
 
   const categoryLabel = categoryName || category?.name || "Product";
+  const hasVariations = (colors && colors.length > 1) || (sizes && sizes.length > 1);
 
   return (
     <article className="group max-w-75 flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -45,6 +51,9 @@ export default function ShopCardComponent({ product }) {
             ◇
           </div>
         )}
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <ButtonAddComponent product={product} />
+        </div>
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div>
@@ -57,9 +66,16 @@ export default function ShopCardComponent({ product }) {
         </div>
         <StarRow />
         <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-2">
-          <p className="text-xl font-semibold tabular-nums text-gray-900">
-            ${price}
-          </p>
+          <div className="flex flex-col">
+            <p className="text-xl font-semibold tabular-nums text-gray-900">
+              ${price}
+            </p>
+            {hasVariations && (
+              <p className="text-xs text-gray-500 mt-1">
+                Multiple options available
+              </p>
+            )}
+          </div>
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(categoryLabel)}`}
           >
