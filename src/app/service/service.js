@@ -60,3 +60,78 @@ export const getProductById = async (id, accessToken) => {
 
     return data;
 };
+
+export const createProduct = async (productData, accessToken) => {
+    const response = await fetch(`${BASE_URL}/products`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+        body: JSON.stringify(productData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to create product");
+    }
+
+    return data;
+};
+
+export const updateProduct = async (id, productData, accessToken) => {
+    const response = await fetch(`${BASE_URL}/products/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+        body: JSON.stringify(productData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to update product");
+    }
+
+    return data;
+};
+
+export const deleteProduct = async (id, accessToken) => {
+    const response = await fetch(`${BASE_URL}/products/${id}`, {
+        method: "DELETE",
+        headers: {
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to delete product");
+    }
+
+    return data;
+};
+
+export const getCategories = async (accessToken) => {
+    const response = await fetch(`${BASE_URL}/categories`, {
+        headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
+        cache: "no-store",
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        return {
+            ...data,
+            payload: [],
+        };
+    }
+
+    return data;
+};

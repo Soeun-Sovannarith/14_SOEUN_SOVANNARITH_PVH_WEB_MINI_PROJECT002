@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { getProducts } from "../service/service";
-import { auth } from "../../auth";
 
 import { categories, products } from "../../data/mockData";
 import LandingHeroSectionComponent from "../../components/landing/LandingHeroSectionComponent";
@@ -10,26 +8,12 @@ import LandingEssentialComponent from "../../components/landing/LandingEssential
 const bestSellers = products.slice(0, 4);
 const heroStrip = products.slice(0, 3);
 
-export default async function Home() {
-  const session = await auth();
-  const data = await getProducts(session?.accessToken);
-  const allProducts = data.payload || [];
-
-  // Map API fields (id/name) to component fields (productId/productName)
-  const mappedProducts = allProducts.map((p) => ({
-    ...p,
-    productId: p.productId || p.id,
-    productName: p.name || p.productName,
-  }));
-
-  const bestSellers = mappedProducts.slice(0, 4);
-  const heroStrip = mappedProducts.slice(0, 3);
+export default function Home() {
   return (
-    
     <div className="bg-[#fafafa]">
       <LandingHeroSectionComponent miniProducts={heroStrip} />
       <LandingBestSellerSectionComponent items={bestSellers} />
-      <LandingEssentialComponent products={mappedProducts} />
+      <LandingEssentialComponent products={products} />
 
       <section className="mx-auto w-full max-w-7xl py-16 lg:py-20">
         <div className="grid gap-4 md:grid-cols-3">
@@ -73,7 +57,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* <LandingTestimonials /> */}
+      
 
       <section className="bg-teal-950 py-16 lg:py-20">
         <div className="mx-auto w-full max-w-7xl px-0 text-center">
@@ -93,7 +77,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* <LandingDiscountTicker /> */}
+      
 
       <section className="mx-auto w-full max-w-7xl py-14 text-center text-sm text-gray-500">
         <p>

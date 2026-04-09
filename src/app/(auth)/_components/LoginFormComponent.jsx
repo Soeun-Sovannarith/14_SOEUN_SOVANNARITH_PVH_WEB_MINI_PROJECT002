@@ -3,13 +3,11 @@ import { useState } from "react";
 import { Button } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation"; // Changed from redirect
 import { useToast } from "@/app/context/ToastContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/lib/validations";
 
 export default function LoginFormComponent() {
-  const router = useRouter(); // Initialize router
   const [submitError, setSubmitError] = useState("");
   const { addToast } = useToast();
   
@@ -46,8 +44,8 @@ export default function LoginFormComponent() {
         color: "success",
       });
 
-      router.push("/");
-      router.refresh(); // Important to update server components
+      // Use window.location for full page reload to avoid RSC payload issues
+      window.location.href = "/";
       
     } catch (error) {
       

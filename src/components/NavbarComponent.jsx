@@ -43,6 +43,50 @@ function linkActive(pathname, label) {
   return false;
 }
 
+function ProfileDropdown({ session }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const userInitial = session?.user?.name?.[0] || session?.user?.email?.[0] || "U";
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-lime-400 text-sm font-semibold text-gray-900 transition hover:bg-lime-300"
+      >
+        {userInitial.toUpperCase()}
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute right-0 top-full z-50 mt-2 w-40 rounded-xl border border-gray-100 bg-white py-2 shadow-lg">
+            <div className="px-4 py-2 border-b border-gray-100">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {session?.user?.name || session?.user?.email}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                signOut();
+              }}
+              className="flex w-full items-center px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Log out
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function authLinkClass(pathname, path, filled = false) {
   const on = pathname === path;
   if (filled) {
@@ -104,12 +148,7 @@ export default function NavbarComponent() {
         <div className="z-10 flex items-center gap-2 sm:gap-3">
           <div className="hidden items-center gap-2 sm:flex">
             {status === "authenticated" ? (
-              <Button
-                onPress={() => signOut()}
-                className="rounded-full px-4 py-2 text-sm font-semibold text-gray-900 border border-gray-200 hover:bg-gray-50"
-              >
-                Log out
-              </Button>
+              <ProfileDropdown session={session} />
             ) : (
               <>
                 <Link href="/login" className={authLinkClass(pathname, "/login", false)}>
