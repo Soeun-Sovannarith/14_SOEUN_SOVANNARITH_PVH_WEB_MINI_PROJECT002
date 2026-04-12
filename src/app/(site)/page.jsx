@@ -1,19 +1,63 @@
 import Link from "next/link";
+import { auth } from "../../auth";
+import { getProducts } from "../service/service";
 
-import { categories, products } from "../../data/mockData";
+import { categories, products as mockProducts } from "../../data/mockData";
 import LandingHeroSectionComponent from "../../components/landing/LandingHeroSectionComponent";
 import LandingBestSellerSectionComponent from "../../components/landing/LandingBestSellerSectionComponent";
 import LandingEssentialComponent from "../../components/landing/LandingEssentialComponent";
 
-const bestSellers = products.slice(0, 4);
-const heroStrip = products.slice(0, 3);
+export default async function Home() {
+  const session = await auth();
+  const isAuthenticated = !!session?.user;
 
-export default function Home() {
+  
+  let apiProducts = [];
+  if (isAuthenticated) {
+    try {
+      const data = await getProducts(session?.accessToken);
+      apiProducts = data?.payload || [];
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    }
+  }
+
+    
+  const products = isAuthenticated && apiProducts.length > 0 ? apiProducts : mockProducts;
+  const bestSellers = products.slice(0, 4);
+  const heroStrip = products.slice(0, 3);
+
   return (
     <div className="bg-[#fafafa]">
-      <LandingHeroSectionComponent miniProducts={heroStrip} />
-      <LandingBestSellerSectionComponent items={bestSellers} />
-      <LandingEssentialComponent products={products} />
+      <LandingHeroSectionComponent miniProducts={isAuthenticated ? heroStrip : []} />
+      
+      {isAuthenticated ? (
+        <>
+          <LandingBestSellerSectionComponent items={bestSellers} />
+          <LandingEssentialComponent products={products} />
+        </>
+      ) : (
+        <section className="mx-auto w-full max-w-7xl py-16 lg:py-20 text-center">
+          <div className="rounded-2xl border border-gray-200 bg-white p-12">
+            <h2 className="text-2xl font-semibold text-gray-900">Sign in to explore products</h2>
+            <p className="mt-2 text-gray-600">Log in or create an account to view our full catalog.</p>
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <Link
+                href="/login"
+                className="rounded-full px-6 py-3 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 hover:bg-gray-50"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-lime-300"
+              >
+                Register
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto w-full max-w-7xl py-16 lg:py-20">
         <div className="grid gap-4 md:grid-cols-3">

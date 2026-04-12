@@ -135,3 +135,21 @@ export const getCategories = async (accessToken) => {
 
     return data;
 };
+
+export const updateProductRating = async (productId, rating, accessToken) => {
+    const response = await fetch(`${BASE_URL}/products/${productId}/rating?star=${rating}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to update product rating");
+    }
+
+    return data;
+};

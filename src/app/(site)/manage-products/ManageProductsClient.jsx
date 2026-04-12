@@ -98,8 +98,8 @@ export default function ManageProductsClient({ initialProducts, categories, acce
       price: "",
       categoryId: categories[0]?.categoryId || "",
       imageUrl: "",
-      colors: ["Blue", "Red", "Gray"],
-      sizes: ["S", "M", "L", "XL"],
+      colors: ["blue", "red", "gray"],
+      sizes: ["s", "m", "l", "xl"],
     });
     setIsModalOpen(true);
   };
@@ -112,8 +112,8 @@ export default function ManageProductsClient({ initialProducts, categories, acce
       price: product.price || "",
       categoryId: product.categoryId || "",
       imageUrl: product.imageUrl || "",
-      colors: product.colors || ["Blue", "Red", "Gray"],
-      sizes: product.sizes || ["S", "M", "L", "XL"],
+      colors: product.colors || ["blue", "red", "gray"],
+      sizes: product.sizes || ["s", "m", "l", "xl"],
     });
     setIsModalOpen(true);
   };
@@ -124,8 +124,21 @@ export default function ManageProductsClient({ initialProducts, categories, acce
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    
+    if (type === "checkbox") {
+      // Handle checkbox arrays for colors and sizes
+      setFormData((prev) => {
+        const currentArray = prev[name] || [];
+        if (checked) {
+          return { ...prev, [name]: [...currentArray, value] };
+        } else {
+          return { ...prev, [name]: currentArray.filter((item) => item !== value) };
+        }
+      });
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -215,23 +228,34 @@ export default function ManageProductsClient({ initialProducts, categories, acce
 
       {/* Controls */}
       <div className="mb-6 flex items-center justify-end">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-700">Sort</span>
-          <div className="relative">
-            <select
-              value={sortOption}
-              onChange={handleSortChange}
-              className="appearance-none rounded-full border border-gray-200 bg-gray-50 px-4 py-2 pr-10 text-sm text-gray-700 focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
-            >
-              <option value="name-asc">Name (A-Z)</option>
-              <option value="name-desc">Name (Z-A)</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+        <div className="flex flex-col items-end gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-700">Sort</span>
+            <div className="relative">
+              <select
+                value={sortOption}
+                onChange={handleSortChange}
+                className="appearance-none rounded-full border border-gray-200 bg-gray-50 px-4 py-2 pr-10 text-sm text-gray-700 focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
+              >
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
           </div>
+          <button
+            onClick={openAddModal}
+            className="inline-flex items-center gap-2 rounded-full bg-lime-400 px-5 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-lime-300"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Create product
+          </button>
         </div>
       </div>
 
@@ -352,11 +376,14 @@ export default function ManageProductsClient({ initialProducts, categories, acce
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {editingProduct ? "Edit Product" : "Add New Product"}
-              </h2>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {editingProduct ? "Edit product" : "Create product"}
+                </h2>
+                <p className="text-sm text-gray-500">Demo CRUD only (local state). Refresh resets changes.</p>
+              </div>
               <button
                 onClick={closeModal}
                 className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
@@ -368,34 +395,21 @@ export default function ManageProductsClient({ initialProducts, categories, acce
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
-                  placeholder="Product name"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
-                  placeholder="Product description"
-                />
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Price ($)</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:border-lime-500 focus:bg-white focus:outline-none"
+                    placeholder="e.g. Tea-Trica BHA Foam"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Price</label>
                   <input
                     type="number"
                     name="price"
@@ -404,21 +418,23 @@ export default function ManageProductsClient({ initialProducts, categories, acce
                     required
                     min="0"
                     step="0.01"
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
-                    placeholder="0.00"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:border-lime-500 focus:bg-white focus:outline-none"
+                    placeholder="e.g. 62"
                   />
                 </div>
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Category</label>
                   <select
                     name="categoryId"
                     value={formData.categoryId}
                     onChange={handleInputChange}
                     required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 focus:border-lime-500 focus:bg-white focus:outline-none appearance-none"
                   >
-                    <option value="">Select category</option>
+                    <option value="">Select...</option>
                     {categories.map((category) => (
                       <option 
                         key={category.categoryId || category.id} 
@@ -429,68 +445,83 @@ export default function ManageProductsClient({ initialProducts, categories, acce
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Image URL (optional)</label>
+                  <input
+                    type="url"
+                    name="imageUrl"
+                    value={formData.imageUrl}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:border-lime-500 focus:bg-white focus:outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Image URL</label>
-                <input
-                  type="url"
-                  name="imageUrl"
-                  value={formData.imageUrl}
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Colors</label>
+                <div className="flex flex-wrap gap-2">
+                  {["green", "gray", "red", "blue", "white"].map((color) => (
+                    <label key={color} className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 cursor-pointer hover:bg-gray-50">
+                      <input
+                        type="checkbox"
+                        name="colors"
+                        value={color}
+                        checked={formData.colors.includes(color)}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 rounded border-gray-300 text-lime-500 focus:ring-lime-500"
+                      />
+                      <span className="text-sm text-gray-700 capitalize">{color}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Sizes</label>
+                <div className="flex flex-wrap gap-2">
+                  {["s", "m", "l", "xl", "xxl", "xxxl"].map((size) => (
+                    <label key={size} className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 cursor-pointer hover:bg-gray-50">
+                      <input
+                        type="checkbox"
+                        name="sizes"
+                        value={size}
+                        checked={formData.sizes.includes(size)}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 rounded border-gray-300 text-lime-500 focus:ring-lime-500"
+                      />
+                      <span className="text-sm text-gray-700 uppercase">{size}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
                   onChange={handleInputChange}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
-                  placeholder="https://example.com/image.jpg"
+                  rows={4}
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:border-lime-500 focus:bg-white focus:outline-none resize-none"
+                  placeholder="Short description shown on the product card..."
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Colors</label>
-                  <input
-                    type="text"
-                    name="colors"
-                    value={formData.colors.join(", ")}
-                    onChange={(e) => {
-                      const colors = e.target.value.split(",").map((c) => c.trim()).filter(Boolean);
-                      setFormData((prev) => ({ ...prev, colors }));
-                    }}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
-                    placeholder="Blue, Red, Gray"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Comma separated</p>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Sizes</label>
-                  <input
-                    type="text"
-                    name="sizes"
-                    value={formData.sizes.join(", ")}
-                    onChange={(e) => {
-                      const sizes = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
-                      setFormData((prev) => ({ ...prev, sizes }));
-                    }}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-lime-500 focus:outline-none focus:ring-2 focus:ring-lime-200"
-                    placeholder="S, M, L, XL"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">Comma separated</p>
-                </div>
-              </div>
-
-              <div className="mt-6 flex gap-3">
+              <div className="mt-8 flex gap-3 pt-4">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="flex-1 rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 rounded-lg bg-lime-600 px-4 py-2 text-sm font-medium text-white hover:bg-lime-700 disabled:opacity-50"
+                  className="flex-1 rounded-full bg-lime-400 px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-lime-300 disabled:opacity-50"
                 >
-                  {isSubmitting ? "Saving..." : editingProduct ? "Update" : "Create"}
+                  {isSubmitting ? "Saving..." : editingProduct ? "Save changes" : "Create product"}
                 </button>
               </div>
             </form>

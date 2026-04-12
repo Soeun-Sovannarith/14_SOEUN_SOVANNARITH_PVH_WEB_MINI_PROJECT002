@@ -51,7 +51,7 @@ function ProfileDropdown({ session }) {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-lime-400 text-sm font-semibold text-gray-900 transition hover:bg-lime-300"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-900 transition hover:bg-lime-300"
       >
         {userInitial.toUpperCase()}
       </button>
@@ -131,7 +131,7 @@ export default function NavbarComponent() {
             const active = linkActive(pathname, label);
             return (
               <Link key={href + label} href={href} className={linkClass(active)}>
-              {/* <Link key={href + label} href={href}> */}
+              
                 {badge && (
                   <span className="absolute -top-2 z-20 left-1/2 -translate-x-1/2 rounded-full bg-lime-400 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-gray-900">
                     {badge}

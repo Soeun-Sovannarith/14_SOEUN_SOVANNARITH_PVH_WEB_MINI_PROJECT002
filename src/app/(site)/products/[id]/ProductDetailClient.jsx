@@ -5,8 +5,60 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useCart } from "../../../../app/context/CartContext";
 import { useToast } from "../../../../app/context/ToastContext";
-import { StarRow } from "../../../../components/ProductCardComponent";
+import { useSession } from "next-auth/react";
+import { updateProductRating } from "../../../../app/service/service";
 import ProductVariationSelector from "../../../../components/shop/ProductVariationSelector";
+
+function InteractiveStarRating({ rating, onRate, isLoading, productId }) {
+  const [hoverRating, setHoverRating] = useState(0);
+  const { data: session } = useSession();
+  const isAuthenticated = !!session?.user;
+
+  const handleClick = async (starValue) => {
+    if (!isAuthenticated) {
+      return;
+    }
+    if (onRate && !isLoading) {
+      await onRate(starValue);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => {
+          const isFilled = star <= (hoverRating || rating);
+          return (
+            <button
+              key={star}
+              type="button"
+              onClick={() => handleClick(star)}
+              onMouseEnter={() => isAuthenticated && setHoverRating(star)}
+              onMouseLeave={() => setHoverRating(0)}
+              disabled={isLoading || !isAuthenticated}
+              className={`transition-all duration-150 ${
+                isAuthenticated ? "cursor-pointer hover:scale-110" : "cursor-default"
+              } ${isLoading ? "opacity-50" : ""}`}
+              title={isAuthenticated ? `Rate ${star} stars` : "Sign in to rate"}
+            >
+              <svg
+                className={`h-5 w-5 ${
+                  isFilled ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"
+                }`}
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            </button>
+          );
+        })}
+      </div>
+      {!session?.user && (
+        <span className="text-xs text-gray-400">(Sign in to rate)</span>
+      )}
+    </div>
+  );
+}
 
 const categoryTone = {
   Skincare: "bg-sky-50 text-sky-800 ring-sky-200",
@@ -22,11 +74,14 @@ function badgeClass(label) {
 export default function ProductDetailClient({ product: initialProduct }) {
   const { addToCart } = useCart();
   const { addToast } = useToast();
+  const { data: session } = useSession();
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [currentRating, setCurrentRating] = useState(0);
+  const [isRatingLoading, setIsRatingLoading] = useState(false);
 
-  // Support both payload wrapper and direct object
+  
   const product = initialProduct?.payload ?? initialProduct;
 
   if (!product || !product.productId && !product.id) {
@@ -42,8 +97,9 @@ export default function ProductDetailClient({ product: initialProduct }) {
   const imageUrl    = product.imageUrl;
   const colors      = product.colors || [];
   const sizes       = product.sizes || [];
+  const starRating  = product.star || product.rating || 0;
 
-  // Set default selections
+
   useEffect(() => {
     if (colors.length > 0 && !selectedColor) {
       setSelectedColor(colors[0]);
@@ -51,7 +107,57 @@ export default function ProductDetailClient({ product: initialProduct }) {
     if (sizes.length > 0 && !selectedSize) {
       setSelectedSize(sizes[0]);
     }
-  }, [colors, sizes]);
+    setCurrentRating(starRating);
+  }, [colors, sizes, starRating]);
+
+  const handleRateProduct = async (rating) => {
+    console.log("Session:", session);
+    console.log("AccessToken:", session?.accessToken);
+    
+    if (!session?.accessToken) {
+      addToast({
+        title: "Sign in required",
+        description: "Please log in to rate this product. Your session may have expired.",
+        color: "warning",
+      });
+      return;
+    }
+
+    setIsRatingLoading(true);
+    try {
+      const result = await updateProductRating(productId, rating, session.accessToken);
+      console.log("Rating result:", result);
+      
+      
+      const updatedStar = result?.payload?.star ?? result?.data?.star ?? rating;
+      setCurrentRating(updatedStar);
+      
+      addToast({
+        title: "Rating submitted!",
+        description: `You rated ${productName} ${rating} stars.`,
+        color: "success",
+      });
+    } catch (error) {
+      console.error("Failed to update rating:", error);
+      
+      
+      if (error.message?.includes("authentication") || error.message?.includes("Authentication")) {
+        addToast({
+          title: "Session expired",
+          description: "Please log out and log in again to rate products.",
+          color: "warning",
+        });
+      } else {
+        addToast({
+          title: "Failed to submit rating",
+          description: error.message || "Something went wrong. Please try again.",
+          color: "danger",
+        });
+      }
+    } finally {
+      setIsRatingLoading(false);
+    }
+  };
 
   const handleAddToCart = () => {
     const productToAdd = {
@@ -75,7 +181,7 @@ export default function ProductDetailClient({ product: initialProduct }) {
     });
   };
 
-  // Build a small gallery from the single imageUrl + stock fallbacks
+  
   const gallery = imageUrl
     ? [
         imageUrl,
@@ -87,7 +193,7 @@ export default function ProductDetailClient({ product: initialProduct }) {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      {/* ── Breadcrumb ─────────────────────────────────────────────────────── */}
+      
       <div className="mx-auto w-full max-w-7xl px-4 pt-8 pb-4">
         <nav className="flex items-center gap-2 text-sm text-gray-500">
           <Link href="/" className="hover:text-gray-900 transition-colors">Home</Link>
@@ -98,13 +204,13 @@ export default function ProductDetailClient({ product: initialProduct }) {
         </nav>
       </div>
 
-      {/* ── Main Grid ──────────────────────────────────────────────────────── */}
+      
       <div className="mx-auto w-full max-w-7xl px-4 pb-20">
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
 
-          {/* ── Image Column ─────────────────────────────────────────────── */}
+          
           <div className="flex flex-col gap-4">
-            {/* Main image */}
+            
             <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
               {imageUrl ? (
                 <Image
@@ -122,7 +228,7 @@ export default function ProductDetailClient({ product: initialProduct }) {
               )}
             </div>
 
-            {/* Thumbnails */}
+            
             {gallery.length > 1 && (
               <div className="grid grid-cols-4 gap-3">
                 {gallery.slice(0, 4).map((url, i) => (
@@ -145,16 +251,16 @@ export default function ProductDetailClient({ product: initialProduct }) {
             )}
           </div>
 
-          {/* ── Info Column ──────────────────────────────────────────────── */}
+          
           <div className="flex flex-col justify-center gap-6">
-            {/* Category badge */}
+            
             <span
               className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${badgeClass(categoryLabel)}`}
             >
               {categoryLabel}
             </span>
 
-            {/* Name */}
+            
             <div>
               <h1 className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl">
                 {productName}
@@ -162,19 +268,24 @@ export default function ProductDetailClient({ product: initialProduct }) {
               <p className="mt-1 text-sm text-gray-400 font-mono">#{productId?.toString().slice(0, 8)}</p>
             </div>
 
-            {/* Rating */}
-            <StarRow rating={4.8} />
+            
+            <InteractiveStarRating
+              rating={currentRating}
+              onRate={handleRateProduct}
+              isLoading={isRatingLoading}
+              productId={productId}
+            />
 
-            {/* Price */}
+            
             <p className="text-4xl font-bold tabular-nums text-gray-900">
               ${price}
               <span className="ml-2 text-sm font-normal text-gray-400">USD</span>
             </p>
 
-            {/* Divider */}
+            
             <hr className="border-gray-100" />
 
-            {/* Description */}
+            
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
                 About this product
@@ -182,7 +293,7 @@ export default function ProductDetailClient({ product: initialProduct }) {
               <p className="mt-3 leading-relaxed text-gray-700">{description}</p>
             </div>
 
-            {/* Highlights */}
+            
             <ul className="space-y-2 text-sm text-gray-600">
               {[
                 "Free shipping on orders over $75",
@@ -196,7 +307,7 @@ export default function ProductDetailClient({ product: initialProduct }) {
               ))}
             </ul>
 
-            {/* Product Variations */}
+            
             <ProductVariationSelector
               colors={colors}
               sizes={sizes}
@@ -206,9 +317,9 @@ export default function ProductDetailClient({ product: initialProduct }) {
               onSizeChange={setSelectedSize}
             />
 
-            {/* CTA */}
+            
             <div className="flex flex-col gap-3">
-              {/* Quantity selector */}
+              
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-gray-700">Quantity:</span>
                 <div className="flex items-center gap-2">
@@ -244,7 +355,7 @@ export default function ProductDetailClient({ product: initialProduct }) {
               </div>
             </div>
 
-            {/* Back link */}
+            
             <Link
               href="/products"
               className="mt-2 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"

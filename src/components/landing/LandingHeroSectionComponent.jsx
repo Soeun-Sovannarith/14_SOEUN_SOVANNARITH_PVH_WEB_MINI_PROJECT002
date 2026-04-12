@@ -35,28 +35,30 @@ export default function LandingHeroSectionComponent({ miniProducts }) {
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </div>
-          <div className="absolute -bottom-4 left-4 right-4 rounded-2xl border border-gray-100 bg-white/95 p-4 shadow-lg backdrop-blur-sm sm:left-auto sm:right-6 sm:w-72 lg:-left-6 lg:bottom-8">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Our best sellers
-            </p>
-            <div className="mt-3 flex gap-2">
-              {miniProducts.map((p) => (
-                <Link
-                  key={p.productId}
-                  href={`/products/${p.productId}`}
-                  className="relative size-14 overflow-hidden rounded-lg bg-gray-100 ring-1 ring-gray-100"
-                >
-                  {p.imageUrl ? (
-                    <Image src={p.imageUrl} alt="" fill sizes="56px" className="object-cover" />
-                  ) : (
-                    <span className="flex size-full items-center justify-center text-xs text-gray-400">
-                      ◇
-                    </span>
-                  )}
-                </Link>
-              ))}
+          {miniProducts.length > 0 && (
+            <div className="absolute -bottom-4 left-4 right-4 rounded-2xl border border-gray-100 bg-white/95 p-4 shadow-lg backdrop-blur-sm sm:left-auto sm:right-6 sm:w-72 lg:-left-6 lg:bottom-8">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Our best sellers
+              </p>
+              <div className="mt-3 flex gap-2">
+                {miniProducts.map((p) => (
+                  <Link
+                    key={p.productId}
+                    href={`/products/${p.productId}`}
+                    className="relative size-14 overflow-hidden rounded-lg bg-gray-100 ring-1 ring-gray-100"
+                  >
+                    {p.imageUrl ? (
+                      <Image src={p.imageUrl} alt="" fill sizes="56px" className="object-cover" />
+                    ) : (
+                      <span className="flex size-full items-center justify-center text-xs text-gray-400">
+                        ◇
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>
