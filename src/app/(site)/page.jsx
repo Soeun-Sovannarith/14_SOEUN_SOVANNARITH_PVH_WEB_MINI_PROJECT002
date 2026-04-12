@@ -130,7 +130,7 @@ export default async function Home() {
             {categories.length} categories
           </Link>{" "}
           and{" "}
-          <Link href="/orders" className="font-medium text-gray-900 underline-offset-2 hover:underline">
+          <Link href="/order" className="font-medium text-gray-900 underline-offset-2 hover:underline">
             sample orders
           </Link>{" "}
           from the same project.

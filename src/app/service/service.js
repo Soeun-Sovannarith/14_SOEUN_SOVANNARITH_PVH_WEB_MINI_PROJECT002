@@ -153,3 +153,42 @@ export const updateProductRating = async (productId, rating, accessToken) => {
 
     return data;
 };
+
+export const getOrders = async (accessToken) => {
+    const response = await fetch(`${BASE_URL}/orders`, {
+        headers: {
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+        cache: "no-store",
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        return {
+            ...data,
+            payload: [],
+        };
+    }
+
+    return data;
+};
+
+export const createOrder = async (orderData, accessToken) => {
+    const response = await fetch(`${BASE_URL}/orders`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+        body: JSON.stringify(orderData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to create order");
+    }
+
+    return data;
+};

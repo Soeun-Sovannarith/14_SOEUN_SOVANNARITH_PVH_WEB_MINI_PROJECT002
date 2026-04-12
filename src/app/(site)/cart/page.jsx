@@ -4,9 +4,61 @@ import { useCart } from "@/app/context/CartContext";
 import { Button } from "@heroui/react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { createOrder } from "@/app/service/service";
+import { useToast } from "@/app/context/ToastContext";
+import { useState } from "react";
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { addToast } = useToast();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const handleCheckout = async () => {
+    if (!session?.accessToken) {
+      addToast({
+        title: "Authentication Required",
+        description: "Please login to proceed with checkout",
+        color: "danger"
+      });
+      router.push("/login");
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      const orderData = {
+        orderDetailRequests: cartItems.map((item) => ({
+          productId: item.productId,
+          orderQty: item.quantity,
+        })),
+      };
+
+      await createOrder(orderData, session.accessToken);
+      
+      // Clear cart after successful order creation
+      clearCart();
+      
+      addToast({
+        title: "Order Placed",
+        description: "Your order has been placed successfully!",
+        color: "success"
+      });
+      router.push("/order");
+    } catch (error) {
+      console.error("Checkout failed:", error);
+      addToast({
+        title: "Checkout Failed",
+        description: error.message || "Failed to place order. Please try again.",
+        color: "danger"
+      });
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   if (cartItems.length === 0) {
     return (
@@ -59,7 +111,7 @@ export default function CartPage() {
                 {cartItems.map((item) => (
                   <div key={item.productId} className="p-6">
                     <div className="flex gap-4">
-                      <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-gray-100">
                         {item.imageUrl ? (
                           <Image
                             src={item.imageUrl}
@@ -157,6 +209,8 @@ export default function CartPage() {
                 <Button
                   className="w-full rounded-full bg-lime-400 font-semibold text-gray-900 hover:bg-lime-300"
                   size="lg"
+                  onPress={handleCheckout}
+                  isLoading={isCheckingOut}
                 >
                   Proceed to Checkout
                 </Button>

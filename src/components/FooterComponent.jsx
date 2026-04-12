@@ -45,7 +45,7 @@ export default async function FooterComponent() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/orders" className="hover:text-gray-900">
+                  <Link href="/order" className="hover:text-gray-900">
                     Orders
                   </Link>
                 </li>
