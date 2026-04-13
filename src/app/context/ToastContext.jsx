@@ -55,31 +55,31 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>
       {children}
-      <div className="fixed top-4 left-1/2 z-10000 flex -translate-x-1/2 flex-col items-center gap-4 pointer-events-none">
+      <div className="fixed top-4 right-4 z-10000 flex flex-col items-end gap-4 pointer-events-none">
         <AnimatePresence mode="popLayout">
           {toasts.map((toast) => (
             <motion.div
               key={toast.id}
-              initial={{ opacity: 0, y: -40, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+              initial={{ opacity: 0, x: 40, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 40, scale: 0.9, transition: { duration: 0.2 } }}
               layout
-              className="pointer-events-auto flex flex-col items-center"
+              className="pointer-events-auto flex flex-col items-end"
             >
-              <div className="relative flex flex-col items-center">
-                <div className="relative z-20 flex h-10 items-center gap-2 rounded-full bg-black px-6 shadow-2xl transition-all duration-300">
-                  {getIcon(toast.color)}
-                  <span className="text-sm font-semibold text-white">{toast.title}</span>
-                </div>
-
-                {toast.description && (
-                  <div className="relative -mt-4 z-10 w-full min-w-[320px] rounded-[32px] bg-black p-6 pt-8 pb-5 shadow-2xl">
-                    <p className="text-left text-sm font-medium leading-relaxed text-gray-400">
-                      {toast.description}
-                    </p>
-                  </div>
-                )}
+              {/* Top Level - Small pill on right */}
+              <div className="relative z-20 flex items-center gap-2 rounded-full bg-black px-5 py-2.5 shadow-2xl">
+                {getIcon(toast.color)}
+                <span className="text-sm font-semibold text-white">{toast.title}</span>
               </div>
+
+              {/* Bottom Level - Wider base extending left */}
+              {toast.description && (
+                <div className="relative -mt-3 z-10 rounded-[28px] rounded-tr-none bg-black px-6 pt-6 pb-4 shadow-2xl min-w-[340px]">
+                  <p className="text-sm font-medium leading-relaxed text-gray-400">
+                    {toast.description}
+                  </p>
+                </div>
+              )}
             </motion.div>
           ))}
         </AnimatePresence>

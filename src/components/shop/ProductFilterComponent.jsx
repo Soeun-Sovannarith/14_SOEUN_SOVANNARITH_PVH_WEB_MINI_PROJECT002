@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@heroui/react";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export default function ProductFilterComponent({ 
   products, 
@@ -9,7 +12,7 @@ export default function ProductFilterComponent({
   categories,
   searchTerm 
 }) {
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 300 });
+  const [priceRange, setPriceRange] = useState([300]);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   // Get unique categories from products
@@ -19,16 +22,16 @@ export default function ProductFilterComponent({
   const maxPrice = Math.max(...products?.map(p => p.price || 0), 300);
   const minPrice = 0;
 
-  const handlePriceChange = (type, value) => {
-    const newRange = { ...priceRange, [type]: value };
+  const handlePriceChange = (value) => {
+    const newRange = value;
     setPriceRange(newRange);
-    applyFilters(newRange, selectedCategories, searchTerm);
+    applyFilters({ min: 0, max: newRange[0] }, selectedCategories, searchTerm);
   };
 
   const handleQuickSelect = (max) => {
-    const newRange = { min: 0, max };
+    const newRange = [max];
     setPriceRange(newRange);
-    applyFilters(newRange, selectedCategories, searchTerm);
+    applyFilters({ min: 0, max }, selectedCategories, searchTerm);
   };
 
   const handleCategoryToggle = (category) => {
@@ -36,14 +39,14 @@ export default function ProductFilterComponent({
       ? selectedCategories.filter(c => c !== category)
       : [...selectedCategories, category];
     setSelectedCategories(newCategories);
-    applyFilters(priceRange, newCategories, searchTerm);
+    applyFilters({ min: 0, max: priceRange[0] }, newCategories, searchTerm);
   };
 
   const handleReset = () => {
-    const resetRange = { min: 0, max: maxPrice };
+    const resetRange = [maxPrice];
     setPriceRange(resetRange);
     setSelectedCategories([]);
-    applyFilters(resetRange, [], searchTerm);
+    applyFilters({ min: 0, max: maxPrice }, [], searchTerm);
   };
 
   const applyFilters = (currentPriceRange, currentCategories, currentSearch) => {
@@ -64,7 +67,7 @@ export default function ProductFilterComponent({
     }
 
     // Apply search filter
-    if (currentSearch.trim()) {
+    if (currentSearch?.trim()) {
       const searchLower = currentSearch.toLowerCase();
       filtered = filtered.filter(product => {
         const productName = (product.name || product.productName || "").toLowerCase();
@@ -80,110 +83,100 @@ export default function ProductFilterComponent({
     return products?.filter(p => (p.categoryName || p.category?.name) === category).length || 0;
   };
 
+  const quickSelectOptions = [
+    { label: "Under $50", value: 50 },
+    { label: "Under $100", value: 100 },
+    { label: "Under $150", value: 150 },
+    { label: "All prices", value: maxPrice },
+  ];
+
   return (
     <div className="w-full lg:w-80 flex-shrink-0">
       <div className="rounded-2xl border border-gray-200 bg-white p-6">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-          <Button
-            variant="flat"
-            size="sm"
-            onPress={handleReset}
-            className="rounded-full text-sm"
+          <button
+            onClick={handleReset}
+            className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition"
           >
             Reset filters
-          </Button>
+          </button>
         </div>
 
-        
         {/* Price Range */}
         <div className="mb-6">
-          <label className="mb-3 block text-sm font-medium text-gray-700">
+          <Label className="mb-3 block text-sm font-medium text-gray-700">
             Price Range
-          </label>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">${priceRange.min}</span>
-              <input
-                type="range"
-                min={minPrice}
-                max={maxPrice}
-                value={priceRange.max}
-                onChange={(e) => handlePriceChange('max', Number(e.target.value))}
-                className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-lime-500"
-              />
-              <span className="text-sm text-gray-600">${priceRange.max}</span>
-            </div>
-            <p className="text-xs text-gray-500">
-              {priceRange.max >= maxPrice ? "(no limit)" : ""}
-            </p>
+          </Label>
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-sm text-gray-600">${minPrice}</span>
+            <Slider
+              value={priceRange}
+              onValueChange={handlePriceChange}
+              max={maxPrice}
+              step={1}
+              className="flex-1"
+            />
+            <span className="text-sm text-gray-600">${maxPrice}</span>
           </div>
+          <p className="text-xs text-gray-500">
+            Max price: ${priceRange[0]}
+          </p>
         </div>
 
         {/* Quick Select */}
         <div className="mb-6">
-          <label className="mb-3 block text-sm font-medium text-gray-700">
+          <Label className="mb-3 block text-sm font-medium text-gray-700">
             Quick Select
-          </label>
+          </Label>
           <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant={priceRange.max === 50 ? "solid" : "flat"}
-              size="sm"
-              onPress={() => handleQuickSelect(50)}
-              className={`rounded-full text-xs ${priceRange.max === 50 ? "bg-black text-white border-black" : ""}`}
-            >
-              Under $50
-            </Button>
-            <Button
-              variant={priceRange.max === 100 ? "solid" : "flat"}
-              size="sm"
-              onPress={() => handleQuickSelect(100)}
-              className={`rounded-full text-xs ${priceRange.max === 100 ? "bg-black text-white border-black" : ""}`}
-            >
-              Under $100
-            </Button>
-            <Button
-              variant={priceRange.max === 150 ? "solid" : "flat"}
-              size="sm"
-              onPress={() => handleQuickSelect(150)}
-              className={`rounded-full text-xs ${priceRange.max === 150 ? "bg-black text-white border-black" : ""}`}
-            >
-              Under $150
-            </Button>
-            <Button
-              variant={priceRange.max === maxPrice ? "solid" : "flat"}
-              size="sm"
-              onPress={() => handleQuickSelect(maxPrice)}
-              className={`rounded-full text-xs ${priceRange.max === maxPrice ? "bg-black text-white border-black" : ""}`}
-            >
-              All prices
-            </Button>
+            {quickSelectOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleQuickSelect(option.value)}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm font-medium transition",
+                  priceRange[0] === option.value
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Categories */}
         <div>
-          <label className="mb-3 block text-sm font-medium text-gray-700">
+          <Label className="mb-3 block text-sm font-medium text-gray-700">
             Categories
-          </label>
-          <div className="space-y-2">
-            {availableCategories.map((category) => (
-              <label key={category} className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.includes(category)}
-                  onChange={() => handleCategoryToggle(category)}
-                  className="h-4 w-4 rounded border-gray-300 text-lime-500 focus:ring-lime-500"
-                />
-                <span className="text-sm text-gray-700">{category}</span>
-                <span className="text-xs text-gray-500">({getCategoryCount(category)})</span>
-              </label>
-            ))}
+          </Label>
+          <div className="space-y-3">
+            {availableCategories.length > 0 ? (
+              availableCategories.map((category) => (
+                <div key={category} className="flex items-center space-x-3">
+                  <Checkbox
+                    id={`category-${category}`}
+                    checked={selectedCategories.includes(category)}
+                    onCheckedChange={() => handleCategoryToggle(category)}
+                  />
+                  <Label 
+                    htmlFor={`category-${category}`}
+                    className="text-sm text-gray-700 cursor-pointer flex-1"
+                  >
+                    {category}
+                    <span className="ml-2 text-xs text-gray-500">
+                      ({getCategoryCount(category)})
+                    </span>
+                  </Label>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No categories available</p>
+            )}
           </div>
-          {availableCategories.length === 0 && (
-            <p className="text-xs text-gray-500">No categories available</p>
-          )}
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-gray-500">
             Select none to include all categories.
           </p>
         </div>

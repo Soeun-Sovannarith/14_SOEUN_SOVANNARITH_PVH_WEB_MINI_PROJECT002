@@ -109,7 +109,7 @@ export default function CartPage() {
               
               <div className="divide-y divide-gray-100">
                 {cartItems.map((item) => (
-                  <div key={item.productId} className="p-6">
+                  <div key={`${item.productId}-${item.color || 'no-color'}-${item.size || 'no-size'}`} className="p-6">
                     <div className="flex gap-4">
                       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-gray-100">
                         {item.imageUrl ? (
@@ -138,7 +138,7 @@ export default function CartPage() {
                             <Button
                               size="sm"
                               variant="flat"
-                              onPress={() => updateQuantity(item.productId, item.quantity - 1)}
+                              onPress={() => updateQuantity(item.productId, item.color, item.size, item.quantity - 1)}
                               className="h-8 w-8 rounded-full p-0 min-w-8"
                               isDisabled={item.quantity <= 1}
                             >
@@ -148,7 +148,7 @@ export default function CartPage() {
                             <Button
                               size="sm"
                               variant="flat"
-                              onPress={() => updateQuantity(item.productId, item.quantity + 1)}
+                              onPress={() => updateQuantity(item.productId, item.color, item.size, item.quantity + 1)}
                               className="h-8 w-8 rounded-full p-0 min-w-8"
                             >
                               +
@@ -163,7 +163,7 @@ export default function CartPage() {
                               size="sm"
                               variant="flat"
                               color="danger"
-                              onPress={() => removeFromCart(item.productId)}
+                              onPress={() => removeFromCart(item.productId, item.color, item.size)}
                               className="h-8 w-8 rounded-full p-0 min-w-8"
                             >
                               ×
