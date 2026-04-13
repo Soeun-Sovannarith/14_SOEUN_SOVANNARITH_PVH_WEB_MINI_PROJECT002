@@ -66,13 +66,13 @@ export const ToastProvider = ({ children }) => {
               layout
               className="pointer-events-auto flex flex-col items-end"
             >
-              {/* Top Level - Small pill on right */}
+                
               <div className="relative z-20 flex items-center gap-2 rounded-full bg-black px-5 py-2.5 shadow-2xl">
                 {getIcon(toast.color)}
                 <span className="text-sm font-semibold text-white">{toast.title}</span>
               </div>
 
-              {/* Bottom Level - Wider base extending left */}
+              
               {toast.description && (
                 <div className="relative -mt-3 z-10 rounded-[28px] rounded-tr-none bg-black px-6 pt-6 pb-4 shadow-2xl min-w-[340px]">
                   <p className="text-sm font-medium leading-relaxed text-gray-400">
