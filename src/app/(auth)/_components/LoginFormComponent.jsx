@@ -44,7 +44,6 @@ export default function LoginFormComponent() {
         color: "success",
       });
 
-      // Use window.location for full page reload to avoid RSC payload issues
       window.location.href = "/";
       
     } catch (error) {

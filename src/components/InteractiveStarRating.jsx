@@ -31,7 +31,6 @@ export default function InteractiveStarRating({
       setRating(starRating);
     } catch (error) {
       console.error('Failed to update rating:', error);
-      // Optionally show error toast here
     } finally {
       setIsUpdating(false);
     }

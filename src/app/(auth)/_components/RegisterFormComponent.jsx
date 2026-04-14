@@ -67,7 +67,6 @@ export default function RegisterFormComponent() {
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
-      {/* Full name */}
       <div>
         <label className="block text-sm font-medium text-gray-700">
           Full name
@@ -85,7 +84,6 @@ export default function RegisterFormComponent() {
         )}
       </div>
 
-      {/* Email */}
       <div>
         <label className="block text-sm font-medium text-gray-700">Email</label>
         <input
@@ -101,7 +99,6 @@ export default function RegisterFormComponent() {
         )}
       </div>
 
-      {/* Password */}
       <div>
         <label className="block text-sm font-medium text-gray-700">
           Password
@@ -119,7 +116,6 @@ export default function RegisterFormComponent() {
         )}
       </div>
 
-      {/* Birthdate */}
       <div>
         <label className="block text-sm font-medium text-gray-700">
           Birthdate

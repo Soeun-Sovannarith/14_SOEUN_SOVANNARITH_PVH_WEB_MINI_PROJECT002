@@ -74,7 +74,7 @@ export default function ManageProductsClient({ initialProducts, categories, acce
     setFilteredProducts(sorted);
   }, [products, sortOption]);
 
-  // Close options menu when clicking outside
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showOptionsMenu && !event.target.closest('.options-menu-container')) {
@@ -127,7 +127,6 @@ export default function ManageProductsClient({ initialProducts, categories, acce
     const { name, value, type, checked } = e.target;
     
     if (type === "checkbox") {
-      // Handle checkbox arrays for colors and sizes
       setFormData((prev) => {
         const currentArray = prev[name] || [];
         if (checked) {
@@ -157,7 +156,6 @@ export default function ManageProductsClient({ initialProducts, categories, acce
       };
 
       if (editingProduct) {
-        // Update existing product
         await updateProduct(
           editingProduct.productId || editingProduct.id,
           productData,
@@ -172,7 +170,6 @@ export default function ManageProductsClient({ initialProducts, categories, acce
           )
         );
       } else {
-        // Create new product
         const result = await createProduct(productData, accessToken);
         if (result?.payload) {
           setProducts((prev) => [...prev, result.payload]);
@@ -220,13 +217,9 @@ export default function ManageProductsClient({ initialProducts, categories, acce
 
   return (
     <div className="mx-auto w-full max-w-7xl py-10 px-4">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-semibold text-gray-900">Manage Products</h1>
-        <p className="mt-2 text-gray-600">Create, update, and delete products in this demo (local state only).</p>
       </div>
-
-      {/* Controls */}
       <div className="mb-6 flex items-center justify-end">
         <div className="flex flex-col items-end gap-3">
           <div className="flex items-center gap-3">
@@ -259,7 +252,6 @@ export default function ManageProductsClient({ initialProducts, categories, acce
         </div>
       </div>
 
-      {/* Products Section */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Products</h2>
         
@@ -268,14 +260,13 @@ export default function ManageProductsClient({ initialProducts, categories, acce
             {filteredProducts.map((product) => {
               const productId = product.productId || product.id;
               const productName = product.name || product.productName;
-              const rating = product.star || product.rating || Math.random() * 2 + 3; // Random rating between 3-5 if not set
+              const rating = product.star || product.rating || 0; // Random rating between 3-5 if not set
               
               return (
                 <div
                   key={productId}
                   className="group relative rounded-xl bg-white transition"
                 >
-                  {/* Product Image */}
                   <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
                     {product.imageUrl ? (
                       <Image
@@ -293,7 +284,6 @@ export default function ManageProductsClient({ initialProducts, categories, acce
                       </div>
                     )}
                     
-                    {/* 3 Dots Menu Button */}
                     <div className="options-menu-container absolute right-3 top-3">
                       <button
                         onClick={() => setShowOptionsMenu(showOptionsMenu === productId ? null : productId)}
@@ -306,7 +296,6 @@ export default function ManageProductsClient({ initialProducts, categories, acce
                         </svg>
                       </button>
                       
-                      {/* Options Dropdown */}
                       {showOptionsMenu === productId && (
                         <div className="absolute right-0 top-full z-10 mt-1 w-32 rounded-lg border border-gray-100 bg-white py-1 shadow-lg">
                           <button
@@ -338,14 +327,11 @@ export default function ManageProductsClient({ initialProducts, categories, acce
                     </div>
                   </div>
 
-                  {/* Product Info */}
                   <div className="mt-3 px-1">
-                    {/* Star Rating */}
                     <div className="mb-1">
                       <StarRating rating={rating} />
                     </div>
                     
-                    {/* Name and Price Row */}
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{productName}</h3>
                     </div>
@@ -373,7 +359,6 @@ export default function ManageProductsClient({ initialProducts, categories, acce
         )}
       </div>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">

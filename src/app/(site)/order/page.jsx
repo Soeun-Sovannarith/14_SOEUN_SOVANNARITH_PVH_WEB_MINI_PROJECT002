@@ -27,7 +27,6 @@ export default async function OrderPage() {
           <div className="space-y-6">
             {orders.map((order) => (
               <div key={order.orderId} className="rounded-[20px] border border-gray-200 bg-white p-6 shadow-sm">
-                {/* Header row */}
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <div className="text-xs font-bold text-gray-400 tracking-wider mb-1 uppercase">Order</div>
@@ -41,7 +40,6 @@ export default async function OrderPage() {
                 
                 <hr className="border-gray-100 my-4" />
 
-                {/* Info grid */}
                 <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-6 mt-4">
                   <div>
                     <div className="text-sm font-medium text-gray-400 mb-1">User ID</div>
@@ -65,7 +63,6 @@ export default async function OrderPage() {
                   </div>
                 </div>
 
-                {/* Order details box */}
                 {order.orderDetailsResponse && order.orderDetailsResponse.length > 0 && (
                   <div className="rounded-xl bg-slate-50 p-6 mt-8">
                     <div className="text-[11px] font-bold text-gray-500 tracking-wider mb-6 uppercase">

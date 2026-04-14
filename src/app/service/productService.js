@@ -1,4 +1,3 @@
-// Product service functions for patch requests
 export async function updateProductVariations(productId, variations, accessToken) {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/products/${productId}`, {
