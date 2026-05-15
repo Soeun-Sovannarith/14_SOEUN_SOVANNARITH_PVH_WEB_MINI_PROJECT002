@@ -25,24 +25,33 @@ export default function ProductVariationSelector({
 
   return (
     <div className="space-y-6">
-      {/* Color Selector */}
       {colors && colors.length > 0 && (
         <div>
           <h3 className="mb-3 text-sm font-medium text-gray-700">Choose a color</h3>
           <div className="flex flex-wrap gap-3 mb-2">
-            {colors.map((color) => (
-              <button
-                key={color}
-                onClick={() => handleColorSelect(color)}
-                className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${
-                  localSelectedColor === color
-                    ? "border-gray-900 bg-gray-900 text-white"
-                    : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-                }`}
-              >
-                {color}
-              </button>
-            ))}
+            {colors.map((color) => {
+              const lc = color.toLowerCase();
+              let selectedClass = "border-gray-900 bg-gray-900 text-white";
+              if (lc === "red") selectedClass = "border-red-500 bg-red-500 text-white";
+              if (lc === "blue") selectedClass = "border-blue-500 bg-blue-500 text-white";
+              if (lc === "gray") selectedClass = "border-gray-500 bg-gray-500 text-white";
+              if (lc === "green") selectedClass = "border-green-500 bg-green-500 text-white";
+              if (lc === "white") selectedClass = "border-gray-300 bg-white text-gray-900 shadow-sm";
+              
+              return (
+                <button
+                  key={color}
+                  onClick={() => handleColorSelect(color)}
+                  className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${
+                    localSelectedColor === color
+                      ? selectedClass
+                      : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                  }`}
+                >
+                  {color}
+                </button>
+              );
+            })}
           </div>
           <p className="text-xs text-gray-500">
             Selected: {localSelectedColor || "None"}
@@ -50,7 +59,6 @@ export default function ProductVariationSelector({
         </div>
       )}
 
-      {/* Size Selector */}
       {sizes && sizes.length > 0 && (
         <div>
           <h3 className="mb-3 text-sm font-medium text-gray-700">Choose a size</h3>

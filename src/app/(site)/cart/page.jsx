@@ -39,7 +39,6 @@ export default function CartPage() {
 
       await createOrder(orderData, session.accessToken);
       
-      // Clear cart after successful order creation
       clearCart();
       
       addToast({
@@ -89,7 +88,6 @@ export default function CartPage() {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
-          {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="rounded-2xl bg-white shadow-sm">
               <div className="p-6 border-b border-gray-100">
@@ -178,7 +176,6 @@ export default function CartPage() {
             </div>
           </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="rounded-2xl bg-white shadow-sm p-6 sticky top-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">Order Summary</h2>

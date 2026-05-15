@@ -1,7 +1,3 @@
-/**
- * Mock API-style responses — frontend only, no network calls.
- * Shapes mirror typical REST examples for categories, products, and orders.
- */
 
 export const categoriesResponse = {
   data: [

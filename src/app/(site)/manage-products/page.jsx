@@ -5,7 +5,6 @@ import { auth } from "../../../auth";
 export default async function ManageProductsPage() {
   const session = await auth();
   
-  // Fetch products and categories
   const productsData = await getProducts(session?.accessToken);
   const categoriesData = await getCategories(session?.accessToken);
   
