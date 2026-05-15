@@ -10,7 +10,7 @@ export default function LandingHeroSectionComponent({ miniProducts }) {
         <div className="max-w-xl">
           <p className="text-sm font-medium uppercase tracking-widest text-lime-600">Natural skincare</p>
           <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-            Glow from within with our skincare essentials Soeun Sovannarith testing CI/CD
+            Glow from within with our skincare essentials Soeun Sovannarith testing CI/CD with Azure DevOps
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-gray-600">
             Gentle formulas, visible results — curated for calm, balanced skin and a routine you will
